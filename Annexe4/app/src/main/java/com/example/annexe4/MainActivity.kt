@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
             bonjour.text = "Bonjour ${util?.prenom} ${util?.nom} !"
 
         connaitre.setOnClickListener {
-                v -> lanceur.launch(Intent(this@MainActivity,IdentificationActivity::class.java))
+                lanceur.launch(Intent(this@MainActivity,IdentificationActivity::class.java))
         }
         //Creation du lanceur:
         lanceur = registerForActivityResult(

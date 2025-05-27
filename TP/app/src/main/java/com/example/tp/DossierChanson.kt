@@ -1,19 +1,10 @@
 package com.example.tp
 
-import android.R
-import android.widget.ArrayAdapter
-import android.widget.Toast
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.JsonReader
-import com.beust.klaxon.Klaxon
-import com.beust.klaxon.Parser
-import org.json.JSONObject
-import java.io.StringReader
 import android.content.Context
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.beust.klaxon.Klaxon
 
 class DossierChanson(context: Context) {
 
@@ -21,27 +12,32 @@ class DossierChanson(context: Context) {
     private val klaxon = Klaxon()
     private val observers = mutableListOf<(List<Chanson>) -> Unit>()
 
+    data class ReponseMusic(val music: List<Chanson>)
+
+
     fun addObserver(observer: (List<Chanson>) -> Unit) {
-        observers += observer
+        observers.add(observer)
     }
 
-    fun recevoirChansons(webUrl: String) {
-        val request = JsonObjectRequest(
-            Request.Method.GET, webUrl, null,
+    fun recevoirChansons(webUrl: String, music_genre:String = "all") {
+        val request = StringRequest(
+            Request.Method.GET, webUrl,
             { response ->
-                val root = Parser.default().parse(StringBuilder(response.toString())) as? JsonObject
-                val array = root?.get("music") as? com.beust.klaxon.JsonArray<*>
-                val chansons = array?.let { Klaxon().parseFromJsonArray<Chanson>(it) }
-
+                val playlist_complète = klaxon.parse<ReponseMusic>(response)?.music
+                val chansons : List<Chanson>?
+                if(music_genre != "all") {
+                    chansons = playlist_complète?.filter { it.genre.equals(music_genre, true) }
+                }
+                else {
+                    chansons = playlist_complète
+                }
                 observers.forEach {
                     if (chansons != null) {
                         it(chansons)
                     }
                 }
             },
-            { error ->
-                error.printStackTrace()
-            }
+            { error -> error.printStackTrace()}
         )
         queue.add(request)
     }

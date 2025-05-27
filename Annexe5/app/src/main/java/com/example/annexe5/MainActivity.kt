@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val from = arrayOf("titre", "image")
-        val to = intArrayOf(R.id.texteTitre, R.id.imageChanson)
+        val to = intArrayOf(R.id.texteTitre, R.id.album_cover)
 
         val adapter = SimpleAdapter(this, data, R.layout.item_chanson, from, to)
         listeView.adapter = adapter
